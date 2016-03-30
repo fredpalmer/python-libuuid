@@ -21,13 +21,20 @@ cdef extern from "Python.h":
 
 
 class FastUUID(uuid_std.UUID):
-    def __init__(self, version=4, *args, **kwargs):
+
+    def __init__(self, uuid_str=None, int version=4, *args, **kwargs):
+
         cdef object buf = PyString_FromStringAndSize(NULL, 16)
         cdef unsigned char *_bytes = <unsigned char*>PyString_AS_STRING(buf)
-        if version == 1:
-            uuid_generate_time(_bytes)
-        elif version == 4:
-            uuid_generate_random(_bytes)
+
+        if uuid_str:
+            uuid_parse(uuid_str, _bytes)
+        else:
+            if version == 1:
+                uuid_generate_time(_bytes)
+            elif version == 4:
+                uuid_generate_random(_bytes)
+
         self.__dict__['bytes'] = buf
         self.__dict__['int'] = _PyLong_FromByteArray(_bytes, 16, 0, 0)
 
@@ -35,10 +42,17 @@ class FastUUID(uuid_std.UUID):
         return self.bytes
 
 
+def parse_many(uuid_strings):
+    uuids = []
+    for uuid_str in uuid_strings:
+        uuids.append(FastUUID(uuid_str))
+    return uuids
+
+
 def uuid1(node=None, clock_seq=None):
     if node or clock_seq:
         raise NotImplementedError, "node and clock_seq are not supported in libuuid"
-    return FastUUID(1)
+    return FastUUID(version=1)
 
 uuid3 = uuid_std.uuid3
 

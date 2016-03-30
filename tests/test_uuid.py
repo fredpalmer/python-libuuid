@@ -50,6 +50,12 @@ def test_constants():
 
 class TestUUID(unittest.TestCase):
 
+    def test_uuid_parse(self):
+        u = libuuid.FastUUID('d7cfb958-8cb5-477c-b7ec-80ecaf1c8d67')
+        u2 = uuid.UUID('d7cfb958-8cb5-477c-b7ec-80ecaf1c8d67')
+        self.assertEqual(u.bytes, u2.bytes)
+        self.assertEqual(u, u2)
+
     def test_uuid1(self):
         u = libuuid.uuid1()
         u2 = uuid.UUID(bytes=u.bytes)
