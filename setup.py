@@ -13,18 +13,13 @@ import codecs
 import os
 from glob import glob
 
-try:
-    import setuptools
-except ImportError:
-    from ez_setup import use_setuptools
-    use_setuptools()
-
-from setuptools import setup, find_packages, Extension
+from setuptools import setup
+from distutils.core import Extension
 from distutils.command.sdist import sdist
 
 extra_setup_args = {}
 try:
-    from Cython.Distutils import build_ext
+    from Cython.Build import cythonize
     import Cython.Compiler.Version
     import Cython.Compiler.Main as cython_compiler
     print("building with Cython " + Cython.Compiler.Version.version)
@@ -34,18 +29,17 @@ try:
                 cython_compiler.compile(glob('libuuid/*.pyx'),
                                         cython_compiler.default_options)
             sdist.__init__(self, *args, **kwargs)
-    extra_setup_args['cmdclass'] = {'build_ext': build_ext, 'sdist': Sdist}
+    extra_setup_args['cmdclass'] = {'sdist': Sdist}
     source_extension = ".pyx"
-except ImportError:
+except ImportError as e:
     print("building without Cython")
+    cythonize = lambda obj: [obj]
     source_extension = ".c"
 
 
-ext_modules = [
-    Extension('libuuid._uuid',
-              sources=['libuuid/_uuid' + source_extension],
-              libraries=['uuid'])
-    ]
+libuuid_extension = Extension('libuuid._uuid',
+                    sources=['libuuid/_uuid' + source_extension],
+                    libraries=['uuid'])
 
 
 long_description = '\n' + codecs.open('README.rst', "r", "utf-8").read()
@@ -58,7 +52,8 @@ setup(name = 'python-libuuid',
       license = 'BSD',
       url = __homepage__,
       packages = ['libuuid'],
-      ext_modules = ext_modules,
+      package_dir={'libuuid': 'libuuid'},
+      ext_modules = cythonize(libuuid_extension),
       zip_safe=False,
       test_suite="nose.collector",
       classifiers=[

@@ -1,12 +1,12 @@
 # cython: embedsignature=True
+import sys
 import uuid as uuid_std
 
 cimport uuid
 from uuid cimport *
-
 cdef extern from "Python.h":
     object PyString_FromFormat(char *format, ...)
-    object PyString_FromStringAndSize(char *s, int len)
+    object PyBytes_FromStringAndSize(char *s, int len)
     object PyString_FromString(char *s)
     object PyLong_FromVoidPtr(void *p)
     object PyLong_FromString(char *, char**, int)
@@ -16,20 +16,23 @@ cdef extern from "Python.h":
                             int little_endian, int is_signed) except -1
 
     int PyString_Size(object s)
-    object PyString_FromStringAndSize(char *, int)
-    char *PyString_AS_STRING(object s)
+    object PyBytes_FromStringAndSize(char *, int)
+    char *PyBytes_AS_STRING(object s)
 
 
 class FastUUID(uuid_std.UUID):
     def __init__(self, version=4, *args, **kwargs):
-        cdef object buf = PyString_FromStringAndSize(NULL, 16)
-        cdef unsigned char *_bytes = <unsigned char*>PyString_AS_STRING(buf)
+        cdef object buf = PyBytes_FromStringAndSize(NULL, 16)
+        cdef unsigned char *_bytes = <unsigned char*>PyBytes_AS_STRING(buf)
         if version == 1:
             uuid_generate_time(_bytes)
         elif version == 4:
             uuid_generate_random(_bytes)
         self.__dict__['bytes'] = buf
         self.__dict__['int'] = _PyLong_FromByteArray(_bytes, 16, 0, 0)
+
+    def __repr__(self):
+        return "UUID(\'%s\')" % str(self)
 
     def get_bytes(self):
         return self.bytes
@@ -47,13 +50,13 @@ uuid4 = FastUUID
 uuid5 = uuid_std.uuid5
 
 def uuid1_bytes():
-    cdef object bytes = PyString_FromStringAndSize(NULL, 16)
-    uuid_generate_time(<unsigned char*>PyString_AS_STRING(bytes))
+    cdef object bytes = PyBytes_FromStringAndSize(NULL, 16)
+    uuid_generate_time(<unsigned char*>PyBytes_AS_STRING(bytes))
     return bytes
 
 def uuid4_bytes():
-    cdef object bytes = PyString_FromStringAndSize(NULL, 16)
-    uuid_generate_random(<unsigned char*>PyString_AS_STRING(bytes))
+    cdef object bytes = PyBytes_FromStringAndSize(NULL, 16)
+    uuid_generate_random(<unsigned char*>PyBytes_AS_STRING(bytes))
     return bytes
 
 
