@@ -2,11 +2,11 @@
 # -*- coding: utf-8 -*-
 """C Extension for faster UUID generation using libuuid."""
 
-__version_info__ = (0, 9, 0)
+__version_info__ = (1, 0, 0)
 __version__ = ".".join(map(str, __version_info__))
-__author__ = "Daniel Lundin"
-__contact__ = "dln@eintr.org"
-__homepage__ = "http://github.com/dln/python-libuuid/"
+__author__ = "Brad Davidson"
+__contact__ = "brad@oatmail.org"
+__homepage__ = "http://github.com/brandond/python-libuuid/"
 __docformat__ = "restructuredtext"
 
 import codecs
@@ -44,7 +44,7 @@ libuuid_extension = Extension('libuuid._uuid',
 
 long_description = '\n' + codecs.open('README.rst', "r", "utf-8").read()
 
-setup(name = 'python-libuuid',
+setup(name = 'libuuid',
       version = __version__,
       description = __doc__,
       author = __author__,
@@ -52,13 +52,15 @@ setup(name = 'python-libuuid',
       license = 'BSD',
       url = __homepage__,
       packages = ['libuuid'],
-      package_dir={'libuuid': 'libuuid'},
+      package_dir = {'libuuid': 'libuuid'},
+      install_requires = ['cython'],
       ext_modules = cythonize(libuuid_extension),
-      zip_safe=False,
-      test_suite="nose.collector",
-      classifiers=[
-                   "Development Status :: 4 - Beta",
-                   "Programming Language :: Python",
+      zip_safe = False,
+      test_suite = "nose.collector",
+      classifiers = [
+                   "Development Status :: 5 - Production/Stable",
+                   "Programming Language :: Python :: 2",
+                   "Programming Language :: Python :: 3",
                    "Programming Language :: Cython",
                    "License :: OSI Approved :: BSD License",
                    "Intended Audience :: Developers",
@@ -66,6 +68,6 @@ setup(name = 'python-libuuid',
                    "Topic :: System :: Distributed Computing",
                    "Topic :: Software Development :: Libraries :: Python Modules",
                   ],
-      long_description=long_description,
-    **extra_setup_args
+      long_description = long_description,
+      **extra_setup_args
 )

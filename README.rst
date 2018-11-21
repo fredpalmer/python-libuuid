@@ -1,5 +1,5 @@
 #########################################################
-  python-libuuid - Faster UUID generation using libuuid
+  libuuid - Faster UUID generation using libuuid
 #########################################################
 
 A Python C extension for faster generation of `UUID`_ objects. It supports
@@ -7,29 +7,34 @@ libuuid-based generation of version 1 and 4 UUIDs. The library is fully
 compatible with the `standard uuid module`_, while also providing specialized,
 optimized, functions for generating `UUID`_ strings.
 
-``python-libuuid`` is roughly 8-10 times faster than the pure-python version.
+``libuuid`` is roughly 8-10 times faster than the pure-python version.
 
 It's basically just a thin `Cython`_ wrapper around `libuuid by Theo Tso`_.
+
+This module has been forked from `python-libuuid`_ by Daniel Lundin. Daniel
+has not updated the module since 2010, and has not responded to pull requeststs
+or attempts to take over maintenance. The upstream module does not support Python 3.
 
 .. _UUID: http://tools.ietf.org/html/rfc4122
 .. _standard uuid module: http://docs.python.org/library/uuid.html
 .. _libuuid by Theo Tso: http://git.kernel.org/?p=fs/ext2/e2fsprogs.git;a=tree;f=lib/uuid
 .. _cython: http://cython.org/
+.. _python-libuuid: https://github.com/dln/python-libuuid
 
 Installation
 ------------
 
-You can install ``python-libuuid`` either via the Python Package Index (PyPI)
+You can install ``libuuid`` either via the Python Package Index (PyPI)
 or from source.
 
 To install using ``pip``::
 
-    $ pip install python-libuuid
+    $ pip install libuuid
 
 
 To install using ``easy_install``::
 
-    $ easy_install python-libuuid
+    $ easy_install libuuid
 
 If you have downloaded a source tarball you can install it by doing the
 following,::
@@ -82,13 +87,13 @@ Bug tracker
 If you have any suggestions, bug reports or annoyances please report using
 the Github `issue tracker`_
 
-.. _issue tracker: http://github.com/dln/python-libuuid/issues/
+.. _issue tracker: http://github.com/brandond/python-libuuid/issues/
 
 
 Contributing
 ------------
 
-Development takes place at Github: http://github.com/dln/python-libuuid/
+Development takes place at Github: http://github.com/brandond/python-libuuid/
 
 Patches and contributions are more than welcome.
 
