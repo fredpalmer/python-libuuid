@@ -1,18 +1,22 @@
 # -*- coding: utf-8 -*-
 from threading import Thread
-from Queue import Queue
+from queue import Queue
 import time
 import unittest
 import uuid
+import sys
 
 import libuuid
+import logging
+
+IS_PY3 = int(sys.version[0]) > 2
 
 
 def test_property():
     _PROPERTIES = [
         'bytes', 'bytes_le', 'clock_seq', 'clock_seq_hi_variant',
         'clock_seq_low', 'fields', 'hex', 'node', 'time', 'time_hi_version',
-        'time_low', 'time_mid', 'urn', 'variant', 'version']
+        'time_low', 'time_mid', 'urn', 'variant', 'version', 'node', 'bytes']
     def _check_property(func_name, prop):
         u = getattr(libuuid, func_name)()
         c = uuid.UUID(bytes=u.bytes)
@@ -24,11 +28,11 @@ def test_property():
 
 def test_method():
     _METHODS = [
-        '__hash__', '__int__', '__repr__', '__str__', 'get_bytes',
-        'get_bytes_le', 'get_clock_seq', 'get_clock_seq_hi_variant',
-        'get_clock_seq_low', 'get_fields', 'get_hex', 'get_node', 'get_time',
-        'get_time_hi_version', 'get_time_low', 'get_time_mid', 'get_urn',
-        'get_variant', 'get_version']
+        '__hash__', '__int__', '__repr__', '__str__']
+
+    if not IS_PY3:
+        _METHODS.append('getnode')
+
     def _check_method(func_name, method):
         u = getattr(libuuid, func_name)()
         c = uuid.UUID(bytes=u.bytes)
@@ -79,17 +83,17 @@ class TestUUID(unittest.TestCase):
 
     def test_uuid1_bytes(self):
         b = libuuid.uuid1_bytes()
-        self.assertEquals(type(b), str)
+        self.assertEquals(type(b), bytes)
         self.assertEquals(uuid.UUID(bytes=b).version, 1)
 
     def test_uuid4_bytes(self):
         b = libuuid.uuid4_bytes()
-        self.assertEquals(type(b), str)
+        self.assertEquals(type(b), bytes)
         self.assertEquals(uuid.UUID(bytes=b).version, 4)
 
     def test_basic_sanity_uuid4(self):
         buf = set()
-        for _ in xrange(10000):
+        for _ in range(10000):
             u = libuuid.uuid4_bytes()
             self.assert_(u not in buf)
             buf.add(u)
@@ -97,23 +101,23 @@ class TestUUID(unittest.TestCase):
     def test_basic_sanity_uuid1(self):
         buf = set()
         clocks = []
-        for _ in xrange(1000):
+        for _ in range(1000):
             u = libuuid.uuid1()
             clocks.append(u.time)
             self.assert_(u.bytes not in buf)
             buf.add(u.bytes)
         self.assertEquals(clocks, sorted(clocks), "Timestamps increment")
-        t = (time.time() * 1e7) + 0x01b21dd213814000L  # RFC 4122 timestamp
+        t = (time.time() * 1e7) + 0x01b21dd213814000  # RFC 4122 timestamp
         diff = abs(t - clocks[-1])
         self.assert_(diff < 10000, "Timestamp reasonable")
 
     def test_multiple_threads(self):
         q = Queue()
         def _runsome():
-            for _ in xrange(200):
+            for _ in range(200):
                 q.put(libuuid.uuid4().hex)
                 q.put(libuuid.uuid1().hex)
-        threads = [Thread(target=_runsome) for _ in xrange(50)]
+        threads = [Thread(target=_runsome) for _ in range(50)]
         for t in threads:
             t.start()
         for t in threads:
